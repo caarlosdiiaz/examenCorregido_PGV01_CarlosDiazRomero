@@ -70,6 +70,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// Crear la lista de colores de
+// todos los alumnos
 val alumno0= Color(0xFFEA80FC)
 val alumno1= Color(0xFF8C9EFF)
 val alumno2= Color(0xFFFFD180)
@@ -80,8 +82,11 @@ val alumno6= Color(0xFF64DD17)
 val alumno7= Color(0xFF00BFA5)
 val alumno8= Color(0xFFAA00FF)
 val alumno9= Color(0xFFFFD600)
-var colorExpandidoGlobal by mutableStateOf(Color.Magenta)
 
+// Creo una variable global para el color
+var colorExpandido by mutableStateOf(Color.Magenta)
+
+// Creamos la data class para los mensajes
 data class Mensajes(val autor: String, val mensaje: String)
 
 // Creo cada mensaje individual
@@ -106,8 +111,10 @@ fun MensajesInidividuales(msg: Mensajes){
         var estaExpandido by remember {
             mutableStateOf(false)
         }
+        // Cuando está expandido se pone del color de la variable global
+        // Y sinós se pone el blanco
         val colorFondo by animateColorAsState(
-            if (estaExpandido) colorExpandidoGlobal else Color.White,
+            if (estaExpandido) colorExpandido else Color.White,
         )
 
         // Creo la columna y lo pongo clicable para que al darle se cambie
@@ -118,8 +125,10 @@ fun MensajesInidividuales(msg: Mensajes){
                 style = MaterialTheme.typography.titleSmall
             )
 
+            // Separacion entre nombre y mensaje
             Spacer(modifier = Modifier.width(4.dp))
 
+            // Creo el mensaje
             Surface (
                 shape = MaterialTheme.shapes.medium,
                 shadowElevation = 1.dp,
@@ -130,6 +139,7 @@ fun MensajesInidividuales(msg: Mensajes){
                 Text(
                     text = msg.mensaje,
                     modifier = Modifier.padding(all = 4.dp),
+                    // Modificador por si está expandido
                     maxLines = if (estaExpandido) Int.MAX_VALUE else 1,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -142,21 +152,27 @@ fun MensajesInidividuales(msg: Mensajes){
 // En la que se ve la foto y el nombre
 @Composable
 fun CartaAlumno(nombre: String, modifier: Modifier = Modifier){
+    // Creo la carta y le doy el ancho entero de la pantalla
+    // Y un padding para que no llegue a los border
     Card (modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 16.dp, vertical = 8.dp)
         .border(1.dp, Color.Gray)
     ) {
+        // Un Row para alinearlo todo
         Row (verticalAlignment = Alignment.CenterVertically) {
+            // Creo la foto del alumno con su avatar en mi caso el 7
             Image(
                 painter = painterResource(R.drawable.avatar7),
-                contentDescription = "Foto de Carlos",
+                contentDescription = "Foto de $nombre",
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
                     .border(1.5.dp, Color.Black, CircleShape)
             )
+            // Separacion entre foto y nombre
             Spacer(modifier = Modifier.width(8.dp))
+            // Creo la columna para el nombre y la presentación
             Column (
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -169,17 +185,26 @@ fun CartaAlumno(nombre: String, modifier: Modifier = Modifier){
     }
 }
 
+// Método del botón
 @Composable
 fun Boton(colorActual: Color, nuevoColor: (Color) -> Unit, color: Color) {
+    // Le pasamos la lista que nos diste
     val listaColores = listOf(Color.Green, Color.Blue, Color.Red, Color.Cyan)
+    // Creamos el botón
     Button(
+        // Le damos su función
         onClick = {
-            colorExpandidoGlobal = listaColores.random()
-            nuevoColor(colorExpandidoGlobal)
+            // Le damos un nuevo color random desde la lista
+            colorExpandido = listaColores.random()
+            // Actualizamos la variable global
+            nuevoColor(colorExpandido)
         },
+        // Lo mismo que en el card del alumno, se le pega
+        // A los lados y un padding para que no toque los bordes
         modifier = Modifier.fillMaxWidth().padding(horizontal = 50.dp, vertical = 8.dp),
         colors = ButtonDefaults.buttonColors(containerColor = colorActual)
     ) {
+        // Texto del botón
         Text("Elegir un nuevo color")
     }
 }
@@ -187,14 +212,23 @@ fun Boton(colorActual: Color, nuevoColor: (Color) -> Unit, color: Color) {
 // Con la lista de los mensajes los mostramos todo
 @Composable
 fun Conversacion(lista: List<Mensajes>, modifier: Modifier = Modifier) {
+    // El color predeterminado del botón se guarda en una variable
     var colorBoton by remember { mutableStateOf(Color.Magenta) }
+    // Creamos una columna para que todo esté alineado
     Column(modifier = modifier) {
+        // Llamamos a la carta y le doy el nombre mio
         CartaAlumno(nombre = "Carlos")
+        // Spacer para separar carta y boton
         Spacer(modifier = Modifier.height(8.dp))
+        // Creo el botón y le paso por parámetros todo lo necesario
         Boton(colorActual = colorBoton, nuevoColor = { newColor -> colorBoton = newColor }, color = colorBoton)
+        // Spacer para separar botón y lista
         Spacer(modifier = Modifier.height(8.dp))
+        // Una lista de items Mensajes
         LazyColumn {
             items(lista) { mensaje ->
+                // Bucle para que por cada mensaje le aplique el formato del
+                // Método "MensajesInidividuales"
                 MensajesInidividuales(msg = mensaje)
             }
         }
